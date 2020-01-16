@@ -2,6 +2,7 @@
     <Appenders>
         <MyAppender name="STDOUT">
             <PatternLayout pattern="%d [%t] %-5p %c{1} - %m" />
+            <repeats>3</repeats>
         </MyAppender>
     </Appenders>
     <Loggers>

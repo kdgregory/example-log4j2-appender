@@ -27,7 +27,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 
 
 /**
- *  A not-so-great replacement for ConsoleAppender.
+ *  A not-so-great replacement for ConsoleAppender. Now with repeating output!
  */
 @Plugin(name = "MyAppender", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE)
 public class MyAppender extends AbstractAppender
@@ -36,23 +36,30 @@ public class MyAppender extends AbstractAppender
     public static MyAppender createAppender(
         @PluginAttribute("name") String name,
         @PluginElement("Layout") Layout<String> layout,
-        @PluginElement("Filters") Filter filter)
+        @PluginElement("Filters") Filter filter),
+        @PluginAttribute("repeats") int repeats
     {
-        return new MyAppender(name, filter, layout);
+        return new MyAppender(name, filter, layout, repeats);
     }
 
 
+    private int repeats;
+
+
     @SuppressWarnings("deprecation")
-    private MyAppender(String name, Filter filter, Layout<String> layout)
+    private MyAppender(String name, Filter filter, Layout<String> layout, int repeats)
     {
         super(name, filter, layout);
-        System.err.println("MyAppender constructed as " + name);
+        this.repeats = (repeats != 0) ? repeats : 1;
     }
 
 
     @Override
     public void append(LogEvent event)
     {
-        System.out.println(getLayout().toSerializable(event));
+        for (int ii = 0 ; ii < repeats ; ii++)
+        {
+            System.out.println(getLayout().toSerializable(event));
+        }
     }
 }
