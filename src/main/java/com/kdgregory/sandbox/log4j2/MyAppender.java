@@ -21,9 +21,10 @@ import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
-import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginBuilderAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginBuilderFactory;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
-import org.apache.logging.log4j.core.config.plugins.PluginFactory;
+import org.apache.logging.log4j.core.config.plugins.validation.constraints.Required;
 
 
 /**
@@ -32,16 +33,62 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 @Plugin(name = "MyAppender", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE)
 public class MyAppender extends AbstractAppender
 {
-    @PluginFactory
-    public static MyAppender createAppender(
-        @PluginAttribute("name") String name,
-        @PluginElement("Layout") Layout<String> layout,
-        @PluginElement("Filters") Filter filter),
-        @PluginAttribute("repeats") int repeats
-    {
-        return new MyAppender(name, filter, layout, repeats);
+    @PluginBuilderFactory
+    public static MyAppenderBuilder newBuilder() {
+        return new MyAppenderBuilder();
     }
 
+
+    public static class MyAppenderBuilder
+    implements org.apache.logging.log4j.core.util.Builder<MyAppender>
+    {
+        @PluginBuilderAttribute("name")
+        @Required(message = "MyAppender: no name provided")
+        private String name;
+
+        @PluginElement("Layout")
+        private Layout<String> layout;
+
+        @PluginElement("Filter")
+        private Filter filter;
+
+        @PluginBuilderAttribute("repeats")
+        private int repeats = 1;
+
+        public MyAppenderBuilder setName(String value)
+        {
+            this.name = value;
+            return this;
+        }
+
+        public MyAppenderBuilder setLayout(Layout<String> value)
+        {
+            this.layout = value;
+            return this;
+        }
+
+        public MyAppenderBuilder setFilter(Filter value)
+        {
+            this.filter = value;
+            return this;
+        }
+
+        public MyAppenderBuilder setRepeats(int value)
+        {
+            this.repeats = value;
+            return this;
+        }
+
+        @Override
+        public MyAppender build()
+        {
+            return new MyAppender(name, filter, layout, repeats);
+        }
+    }
+
+//----------------------------------------------------------------------------
+//  Appender implementation
+//----------------------------------------------------------------------------
 
     private int repeats;
 
@@ -50,7 +97,7 @@ public class MyAppender extends AbstractAppender
     private MyAppender(String name, Filter filter, Layout<String> layout, int repeats)
     {
         super(name, filter, layout);
-        this.repeats = (repeats != 0) ? repeats : 1;
+        this.repeats = repeats;
     }
 
 
