@@ -1,9 +1,8 @@
-<Configuration status="warn" packages="com.kdgregory.sandbox.log4j2">
+<Configuration status="debug" packages="com.kdgregory.sandbox.log4j2" shutdownTimeout="2500">
     <Appenders>
-        <MyAppender name="STDOUT">
+        <LifecycleReportingAppender name="STDOUT">
             <PatternLayout pattern="%d [%t] %-5p %c{1} - %m" />
-            <repeats>3</repeats>
-        </MyAppender>
+        </LifecycleReportingAppender>
     </Appenders>
     <Loggers>
         <Root level="debug">
