@@ -14,11 +14,16 @@
 
 package com.kdgregory.sandbox.log4j2;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Core;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.StringLayout;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginBuilderAttribute;
@@ -28,7 +33,7 @@ import org.apache.logging.log4j.core.config.plugins.validation.constraints.Requi
 
 
 /**
- *  A not-so-great replacement for ConsoleAppender. Now with repeating output!
+ *  A not-so-great replacement for ConsoleAppender. Now with support for headers and footers!
  */
 @Plugin(name = "MyAppender", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE)
 public class MyAppender extends AbstractAppender
@@ -125,12 +130,44 @@ public class MyAppender extends AbstractAppender
 
     private MyAppenderConfig config;
 
+    // this is the default character set, if the layout doesn't tell us different
+    private Charset layoutCharset = StandardCharsets.UTF_8;
+
 
     @SuppressWarnings("deprecation")
     private MyAppender(MyAppenderConfig config)
     {
         super(config.getName(), config.getFilter(), config.getLayout());
         this.config = config;
+
+        if (config.getLayout() instanceof StringLayout)
+        {
+            layoutCharset = ((StringLayout)config.getLayout()).getCharset();
+        }
+    }
+
+
+    @Override
+    public void start()
+    {
+        byte[] header = getLayout().getHeader();
+        if ((header != null) && (header.length > 0))
+        {
+            System.out.println(new String(header, layoutCharset));
+        }
+        super.start();
+    }
+
+
+    @Override
+    public boolean stop(long timeout, TimeUnit timeUnit)
+    {
+        byte[] footer = getLayout().getFooter();
+        if ((footer != null) && (footer.length > 0))
+        {
+            System.out.println(new String(footer, layoutCharset));
+        }
+        return super.stop(timeout, timeUnit);
     }
 
 

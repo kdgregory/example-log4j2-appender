@@ -16,26 +16,17 @@ package com.kdgregory.sandbox.log4j2;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
 
 
 public class Main
 {
+    private final static Logger logger = LogManager.getLogger(Main.class);
+
+
     public static void main(String[] argv)
     throws Exception
     {
-        System.err.println("main started, getting logger");
-        Logger logger = LogManager.getLogger(Main.class);
-
         logger.info("Hello, World");
-
-        // this simulates changes to the configuration file during runtime
-        System.err.println("reconfiguring logging context");
-        final LoggerContext context = (LoggerContext) LogManager.getContext(false);
-        context.reconfigure();
-
         logger.info("Did you hear me? Was it on a separate line?");
-
-        System.err.println("end of main()");
     }
 }
