@@ -1,11 +1,7 @@
 <Configuration status="warn" packages="com.kdgregory.sandbox.log4j2">
     <Appenders>
         <MyAppender name="STDOUT">
-            <PatternLayout pattern="%d [%t] %-5p %c{1} - %m" 
-                           header="%d This is the layout header"
-                           footer="%d This is the layout footer"
-                           />
-            <repeats>3</repeats>
+            <RedactingLayout redactionPatterns="[Ww]orld,separate"/>
         </MyAppender>
     </Appenders>
     <Loggers>
