@@ -26,7 +26,7 @@ public class Main
     public static void main(String[] argv)
     throws Exception
     {
-        logger.info("Hello, World");
+        logger.info("Hello, ${env:USER:-World}");
         logger.info("Did you hear me? Was it on a separate line?");
     }
 }

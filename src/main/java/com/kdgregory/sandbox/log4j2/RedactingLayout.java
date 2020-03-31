@@ -23,10 +23,13 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.core.Core;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginConfiguration;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
+import org.apache.logging.log4j.core.lookup.StrSubstitutor;
 
 
 /**
@@ -38,18 +41,21 @@ extends AbstractStringLayout
 {
     @PluginFactory
     public static RedactingLayout factory(
+        @PluginConfiguration Configuration config,
         @PluginAttribute("redactionPatterns") String redactionPatterns)
     {
-        return new RedactingLayout(redactionPatterns);
+        return new RedactingLayout(config, redactionPatterns);
     }
 
 
+    private StrSubstitutor subs;
     private List<Pattern> redactionPatterns = new ArrayList<>();
 
 
-    private RedactingLayout(String redactionPatterns)
+    private RedactingLayout(Configuration config, String redactionPatterns)
     {
         super(StandardCharsets.UTF_8);
+        subs = config.getStrSubstitutor();
         for (String pattern : redactionPatterns.split(","))
         {
             this.redactionPatterns.add(Pattern.compile(pattern));
@@ -60,7 +66,8 @@ extends AbstractStringLayout
     @Override
     public String toSerializable(LogEvent event)
     {
-        String message = event.getMessage().getFormattedMessage();
+        String raw_message = event.getMessage().getFormattedMessage();
+        String message = subs.replace("${date:yyyy-MM-dd HH:mm:ss.SSS} - " + raw_message);
         for (Pattern pattern : redactionPatterns)
         {
             Matcher matcher = pattern.matcher(message);
