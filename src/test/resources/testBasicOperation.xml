@@ -1,0 +1,19 @@
+<Configuration status="warn" packages="com.kdgregory.sandbox.log4j2.helpers">
+    <Appenders>
+        <Console name="STDOUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS}  %-5p - %m%n" />
+        </Console>
+        <TestableAppender name="TEST">
+            <PatternLayout pattern="%p - %m" />
+            <repeats>2</repeats>
+        </TestableAppender>
+    </Appenders>>
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="STDOUT" />
+        </Root>
+        <Logger name="TEST" level="debug" additivity="false">
+            <AppenderRef ref="TEST" />
+        </Logger>
+    </Loggers>
+</Configuration>

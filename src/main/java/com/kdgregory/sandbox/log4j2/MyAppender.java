@@ -14,6 +14,7 @@
 
 package com.kdgregory.sandbox.log4j2;
 
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +39,7 @@ import org.apache.logging.log4j.core.config.plugins.validation.constraints.Requi
 @Plugin(name = "MyAppender", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE)
 public class MyAppender extends AbstractAppender
 {
-    private interface MyAppenderConfig
+    protected interface MyAppenderConfig
     {
         String getName();
         Layout<String> getLayout();
@@ -120,7 +121,7 @@ public class MyAppender extends AbstractAppender
         @Override
         public MyAppender build()
         {
-            return new MyAppender(this);
+            return new MyAppender(this, System.out);
         }
     }
 
@@ -130,15 +131,19 @@ public class MyAppender extends AbstractAppender
 
     private MyAppenderConfig config;
 
+    // this is the destination for logging; it's passed in by the builder
+    private PrintStream out;
+
     // this is the default character set, if the layout doesn't tell us different
     private Charset layoutCharset = StandardCharsets.UTF_8;
 
 
     @SuppressWarnings("deprecation")
-    private MyAppender(MyAppenderConfig config)
+    protected MyAppender(MyAppenderConfig config, PrintStream out)
     {
         super(config.getName(), config.getFilter(), config.getLayout());
         this.config = config;
+        this.out = out;
 
         if (config.getLayout() instanceof StringLayout)
         {
@@ -153,7 +158,7 @@ public class MyAppender extends AbstractAppender
         byte[] header = getLayout().getHeader();
         if ((header != null) && (header.length > 0))
         {
-            System.out.println(new String(header, layoutCharset));
+            out.println(new String(header, layoutCharset));
         }
         super.start();
     }
@@ -165,7 +170,7 @@ public class MyAppender extends AbstractAppender
         byte[] footer = getLayout().getFooter();
         if ((footer != null) && (footer.length > 0))
         {
-            System.out.println(new String(footer, layoutCharset));
+            out.println(new String(footer, layoutCharset));
         }
         return super.stop(timeout, timeUnit);
     }
@@ -176,7 +181,7 @@ public class MyAppender extends AbstractAppender
     {
         for (int ii = 0 ; ii < config.getRepeats() ; ii++)
         {
-            System.out.println(getLayout().toSerializable(event));
+            out.println(getLayout().toSerializable(event));
         }
     }
 }
